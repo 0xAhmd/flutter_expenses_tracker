@@ -1,0 +1,63 @@
+Explanation of the CRUD Operations
+The ExpenseDatabase class provides operations to manage expense data stored in the Isar database. Here's a simple explanation of each operation:
+
+1. Create (Add Expense)
+
+Future<void> addExpense(ExpenseModel expense) async {
+  await isar.writeTxn(() => isar.expenseModels.put(expense));
+  await getExpenses();
+}
+
+What it does: Adds a new expense to the database.
+
+How it works:
+Uses isar.writeTxn to ensure the database operation is safe and consistent.
+The put method adds the expense to the database.
+After adding, it calls getExpenses() to refresh the list of all expenses.
+
+
+2. Read (Get All Expenses)
+
+Future<void> getExpenses() async {
+  List<ExpenseModel> fetchedExpenses = await isar.expenseModels.where().findAll();
+
+  _allExpenses.clear();
+  _allExpenses.addAll(fetchedExpenses);
+  notifyListeners();
+}
+
+What it does: Retrieves all expenses from the database and updates the local list _allExpenses.
+
+How it works:
+Fetches all expenses using findAll().
+Clears the current list _allExpenses and adds the newly fetched expenses to it.
+Calls notifyListeners() to update any UI widgets listening to the database
+
+
+3. Update (Modify an Expense)
+Future<void> updateExpense(int id, ExpenseModel expense) async {
+  expense.id = id;
+  await isar.writeTxn(() => isar.expenseModels.put(expense));
+  await getExpenses();
+}
+
+What it does: Updates an existing expense with a new value.
+
+How it works:
+Sets the ID of the expense to match the ID of the item you want to update.
+Uses put inside a transaction to save the updated expense to the database.
+Refreshes the list of expenses by calling getExpenses().
+
+
+4. Delete (Remove an Expense)
+
+Future<void> deleteExpense(int id) async {
+  await isar.writeTxn(() => isar.expenseModels.delete(id));
+  await getExpenses();
+}
+
+What it does: Removes an expense from the database by its ID.
+
+How it works:
+Deletes the expense with the specified id using delete inside a transaction.
+Refreshes the list of expenses by calling getExpenses().
